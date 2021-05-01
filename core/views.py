@@ -1,13 +1,15 @@
 from django.http import JsonResponse, Http404
-from django.shortcuts import render
+from django.shortcuts import render, HttpResponse
 from rest_framework.response import Response
 from rest_framework.views import APIView
-from rest_framework.generics import GenericAPIView
+from rest_framework.generics import GenericAPIView, ListAPIView, RetrieveAPIView
 from rest_framework.mixins import (ListModelMixin, CreateModelMixin, RetrieveModelMixin,
                                                     UpdateModelMixin, DestroyModelMixin)
-from .serializers import PostSerializer
+from .serializers import PostSerializer, UserSerializer
 from .models import Post
-from rest_framework import status
+from rest_framework import status, permissions
+from django.contrib.auth.models import User
+from .permissions import IsOwnerOrReadOnly
 
 # class PostList(APIView):
 #     def get(self, request, *args, **kwargs):
@@ -27,12 +29,16 @@ class PostList(ListModelMixin,
                 GenericAPIView):
     queryset = Post.objects.all()
     serializer_class = PostSerializer
+    permission_classes = [permissions.IsAuthenticatedOrReadOnly]
 
     def get(self, request, *args, **kwargs):
         return self.list(request, *args, **kwargs)
 
     def post(self, request, *args, **kwargs):
         return self.create(request, *args, **kwargs)
+    
+    def perform_create(self, serializer):
+        serializer.save(owner=self.request.user)
 
 # class PostDetail(APIView):
 
@@ -67,6 +73,7 @@ class PostDetail(RetrieveModelMixin,
                     
     queryset = Post.objects.all()
     serializer_class = PostSerializer
+    permission_classes = [permissions.IsAuthenticatedOrReadOnly, IsOwnerOrReadOnly]
 
     def get(self, request, *args, **kwargs):
         return self.retrieve(request, *args, **kwargs)
@@ -76,3 +83,13 @@ class PostDetail(RetrieveModelMixin,
 
     def delete(self, request, *args, **kwargs):
         return self.destroy(request, *args, **kwargs)
+
+
+class UserList(ListAPIView):
+    queryset = User.objects.all()
+    serializer_class = UserSerializer
+
+
+class UserDetail(RetrieveAPIView):
+    queryset = User.objects.all()
+    serializer_class = UserSerializer
