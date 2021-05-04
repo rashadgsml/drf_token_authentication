@@ -1,1 +1,1 @@
-![token_auth_postman](https://user-images.githubusercontent.com/50767818/117081187-79f4b000-ad50-11eb-947f-a2a59632f3a8.png)
+![token_auth_postman](https://user-images.githubusercontent.com/50767818/117081338-bd4f1e80-ad50-11eb-8253-8125277106b1.png)
